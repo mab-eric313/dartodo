@@ -17,6 +17,11 @@ enum Priority {
 
 int todoNumber = 0;
 
+/*
+TODO(HIGH): Add file property
+(DESC):
+  This property will see what file location has been parsed
+*/
 class Todo {
   String task = '';
   String priority = ''; // LOW/MED/HIG/NONE
@@ -98,15 +103,20 @@ void printTodos(List<Todo> foundTodos) {
   print(buffer);
 }
 
-void writeMarkdown(File file, List<Todo> foundTodos) async {
+void writeFile(File file, String type, List<Todo> foundTodos) async {
   String buffer = '';
   for (int i = 0; i < foundTodos.length; i++) {
-    buffer += foundTodos[i].strBuffer(type: 'markdown');
+    buffer += foundTodos[i].strBuffer(type: type);
   }
 
   try {
     await file.writeAsString(buffer);
+    print(file);
+    print('Successfully created \'${file.uri}\' file');
   } catch (e) {
     print('Error writing file $e');
   }
 }
+
+// TODO(LOW): class Todos will parse what ever file in this directory and recursively
+// class Todos { }

@@ -10,11 +10,16 @@
   **Desc**     : -<br>
 
 - [ ] #3<br>
+  **Priority** : HIGH<br>
+  **Task**     : todo with high priority<br>
+  **Desc**     : -<br>
+
+- [ ] #4<br>
   **Priority** : -<br>
   **Task**     : todo with no priority<br>
   **Desc**     : -<br>
 
-- [ ] #4<br>
+- [ ] #5<br>
   **Priority** : LOW<br>
   **Task**     : todo low priority<br>
   **Desc**     : Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum interdum 
@@ -23,4 +28,9 @@
     risus sed diam faucibus bibendum. Nulla sit amet lorem eget ex cursus vulputate 
     vitae sit amet urna. Cras aliquam purus a neque posuere, nec varius ligula 
     faucibus.<br>
+
+- [ ] #6<br>
+  **Priority** : HIGH<br>
+  **Task**     : Add support can work with dir<br>
+  **Desc**     : -<br>
 
