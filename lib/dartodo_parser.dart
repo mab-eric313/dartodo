@@ -23,6 +23,8 @@ TODO(HIGH): Add file property
   This property will see what file location has been parsed
 */
 class Todo {
+  // TODO(HIGH): Add sort method, sorting from HIGH to LOW
+
   String task = '';
   String priority = ''; // LOW/MED/HIG/NONE
   String description = '';
@@ -111,7 +113,6 @@ void writeFile(File file, String type, List<Todo> foundTodos) async {
 
   try {
     await file.writeAsString(buffer);
-    print(file);
     print('Successfully created \'${file.uri}\' file');
   } catch (e) {
     print('Error writing file $e');

@@ -1,30 +1,9 @@
-/*
-  Write todo comment to your code files and run this program.
-
-  Example:
-  // TODO(LOW): todo with low priority
-  // TODO(MED): todo with medium priority
-  // TODO(HIGH): todo with high priority
-  // TODO: todo with no priority
-  /*
-  TODO(LOW): todo low priority 
-  (DESC): 
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum interdum 
-    elementum diam, eu cursus erat tristique eu. Mauris gravida sodales tristique. 
-    Sed eget commodo sem. Etiam rutrum dolor at nunc ultricies volutpat. Donec a 
-    risus sed diam faucibus bibendum. Nulla sit amet lorem eget ex cursus vulputate 
-    vitae sit amet urna. Cras aliquam purus a neque posuere, nec varius ligula 
-    faucibus. 
-  */
-
-  Run:
-  $ dartodo_parser -f 'your/code/file'
-
-*/
-
 import 'dart:io';
-import 'package:args/args.dart';
+import 'dart:convert';
 
+import 'package:path/path.dart' as dart_path;
+
+import 'package:args/args.dart';
 import 'package:dartodo_parser/dartodo_parser.dart';
 
 void main(List<String> arguments) async {
@@ -33,6 +12,11 @@ void main(List<String> arguments) async {
     print('       Try \'-h\' to see help command');
     return;
   }
+  // TODO(HIGH): Add `-e` or `--except` flag
+  /*
+  TODO(MED): Add `-ih` or `--include-hidden` flag
+  (DESC): Default exclude hidden file or dir
+  */
   final argParser = ArgParser()
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Show usage details')
     ..addFlag('print-only', abbr: 'p', negatable: false, help: 'Print todo only')
@@ -88,19 +72,72 @@ void main(List<String> arguments) async {
   }
 }
 
-Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
-  File sourceFile = File(sourcePath);
+Future<String> isFileOrDir(String path) async {
+  FileSystemEntityType type = await FileSystemEntity.type(path);
+  return type.toString();
+}
 
-  if (!await sourceFile.exists()) {
-    print('Error: File source "$sourcePath" tidak ditemukan.');
+Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
+  String type = await isFileOrDir(sourcePath);
+  if (type == 'file') {
+    File sourceFile = File(sourcePath);
+
+    if (!await sourceFile.exists()) {
+      print('Error: File source "$sourcePath" not found.');
+      return;
+    }
+
+    String fileContent = await sourceFile.readAsString();
+    List<Todo> foundTodos = Todo.parseAll(fileContent);
+
+    File outputFile = File(outputPath);
+    String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
+
+    writeFile(outputFile, format, foundTodos);
+  } else if (type == 'directory') {
+    final dir = Directory(sourcePath);
+    final List<FileSystemEntity> entities = await dir
+      .list(recursive: true, followLinks: false)
+      .toList();
+
+    final files = entities.whereType<File>().where((file) {
+      final parts = dart_path.split(file.path);
+      final isHidden = parts.any(
+        (part) => part.startsWith('.') && part != '.' && part != '..',
+      );
+      return !isHidden;
+    });
+    List<Todo> foundTodos = [];
+    // TODO(MED): Change `for...in` with `Future.wait`
+    for (final file in files) {
+      if (await isTextFile(file)) {
+        String fileContent = await file.readAsString();
+        foundTodos.addAll(Todo.parseAll(fileContent));
+      }
+    }
+    File outputFile = File(outputPath);
+    String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
+
+    writeFile(outputFile, format, foundTodos);
+
+  } else if (type == 'notFound') {
+    print("Error: Source file or directory not found");
     return;
   }
+}
 
-  String fileContent = await sourceFile.readAsString();
-  List<Todo> foundTodos = Todo.parseAll(fileContent);
+Future<bool> isTextFile(File file) async {
+  try {
+    final Stream<List<int>> stream = file.openRead(0, 1024);
+    final List<int> bytes = await stream.first;
 
-  File outputFile = File(outputPath);
-  String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
+    if (bytes.contains(0)) {
+      return false;
+    }
 
-  writeFile(outputFile, format, foundTodos);
+    utf8.decode(bytes, allowMalformed: false);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
