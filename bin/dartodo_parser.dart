@@ -23,7 +23,6 @@ void main(List<String> arguments) async {
     ..addOption(
       'source',
       abbr: 's',
-      // TODO(HIGH): Add support can work with dir
       help: 'The source file to be parsed',
     )
     ..addOption(
@@ -42,6 +41,7 @@ void main(List<String> arguments) async {
     }
 
     if (parser['print-only'] as bool) {
+      // TODO(HIGH): Change static filename 
       String fileName = 'bin/dartodo_parser.dart';
       File fileInput = File(fileName);
       if (await fileInput.exists()) {
@@ -80,6 +80,7 @@ Future<String> isFileOrDir(String path) async {
 Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
   String type = await isFileOrDir(sourcePath);
   if (type == 'file') {
+    // TODO(MED): Add sort() 
     File sourceFile = File(sourcePath);
 
     if (!await sourceFile.exists()) {
@@ -107,7 +108,9 @@ Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
       );
       return !isHidden;
     });
+
     List<Todo> foundTodos = [];
+
     // TODO(MED): Change `for...in` with `Future.wait`
     for (final file in files) {
       if (await isTextFile(file)) {
@@ -115,10 +118,13 @@ Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
         foundTodos.addAll(Todo.parseAll(fileContent));
       }
     }
+
+    final todos = sort(foundTodos);
+
     File outputFile = File(outputPath);
     String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
 
-    writeFile(outputFile, format, foundTodos);
+    writeFile(outputFile, format, todos);
 
   } else if (type == 'notFound') {
     print("Error: Source file or directory not found");

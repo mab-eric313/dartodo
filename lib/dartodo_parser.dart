@@ -23,8 +23,6 @@ TODO(HIGH): Add file property
   This property will see what file location has been parsed
 */
 class Todo {
-  // TODO(HIGH): Add sort method, sorting from HIGH to LOW
-
   String task = '';
   String priority = ''; // LOW/MED/HIG/NONE
   String description = '';
@@ -49,7 +47,7 @@ class Todo {
       String? rawTask = match.group(2) ?? match.group(4);
       String? rawDesc = match.group(5);
 
-      String finalPriority = (rawPriority ?? '').toUpperCase();
+      String finalPriority = (rawPriority ?? '-').toUpperCase();
       String finalTask = (rawTask ?? 'No Task').trim();
       String finalDesc = (rawDesc ?? '').trim();
 
@@ -95,6 +93,44 @@ class Todo {
 
     return buffer;
   }
+
+  @override
+  String toString() {
+    final buffer = '''
+- [ ]
+  Priority : ${priority.isEmpty ? "-" : priority}
+  Task     : $task
+  Desc     : ${description.isEmpty ? "-" : description}
+''';
+    return buffer;
+  }
+}
+
+List<Todo> sort(List<Todo> foundTodos) {
+  List<Todo> highPriority = [];
+  List<Todo> medPriority = [];
+  List<Todo> lowPriority = [];
+  List<Todo> nonePriority = [];
+
+  for (int i = 0; i < foundTodos.length; i++) {
+    if (foundTodos[i].priority == 'HIGH') {
+      highPriority.add(foundTodos[i]);
+    } else if (foundTodos[i].priority == 'MED') {
+      medPriority.add(foundTodos[i]);
+    } else if (foundTodos[i].priority == 'LOW') {
+      lowPriority.add(foundTodos[i]);
+    } else if (foundTodos[i].priority == '-') {
+      nonePriority.add(foundTodos[i]);
+    }
+  }
+
+  List<Todo> todos = [];
+  todos.addAll(highPriority);
+  todos.addAll(medPriority);
+  todos.addAll(lowPriority);
+  todos.addAll(nonePriority);
+
+  return todos;
 }
 
 void printTodos(List<Todo> foundTodos) {
@@ -118,6 +154,3 @@ void writeFile(File file, String type, List<Todo> foundTodos) async {
     print('Error writing file $e');
   }
 }
-
-// TODO(LOW): class Todos will parse what ever file in this directory and recursively
-// class Todos { }
