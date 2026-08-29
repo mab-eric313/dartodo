@@ -40,31 +40,52 @@ void main(List<String> arguments) async {
       return;
     }
 
-    if (parser['print-only'] as bool) {
-      // TODO(HIGH): Change static filename 
-      String fileName = 'bin/dartodo_parser.dart';
-      File fileInput = File(fileName);
-      if (await fileInput.exists()) {
-        String fileContent = await fileInput.readAsString();
-        List<Todo> foundTodos = Todo.parseAll(fileContent);
-        printTodos(foundTodos);
-      } else {
-        print('Error: File "$fileName" not found');
-      }
+    final hasSource = parser.wasParsed('source');
+    final hasOutput = parser.wasParsed('output');
+    bool hasPrintOnly = parser['print-only'] as bool;
+
+    if ((hasSource && !hasPrintOnly && !hasOutput) || 
+      (hasOutput && !hasPrintOnly && !hasSource)) {
+      print('Error:');
+      print('  Should provide \'-s\' and \'-o\'\n');
+      print('  Example:');
+      print('    dartodo_parser -s path/file_input.dart -o output.md');
+      print('  Or');
+      print('    dartodo_parser -s path/file_input.dart -p');
       return;
     }
 
-    final hasSource = parser.wasParsed('source');
-    final hasOutput = parser.wasParsed('output');
+    if (hasPrintOnly && hasSource && !hasOutput) {
+      String sourcePath = parser.option('source')!;
+      String type = await isFileOrDir(sourcePath);
 
-    if (hasSource && hasOutput) {
+      if (type == 'file') {
+        File fileInput = File(sourcePath);
+        if (await fileInput.exists()) {
+          String fileContent = await fileInput.readAsString();
+          List<Todo> foundTodos = Todo.parseAll(fileContent);
+          printTodos(foundTodos);
+        } else {
+          print('Error: File "$sourcePath" not found');
+        }
+        return;
+      } else if (type == 'directory') {
+        final todos = await parseDirectory(sourcePath);
+        printTodos(todos);
+        return;
+      }
+    } else if (hasSource && hasOutput && !hasPrintOnly) {
       String sourcePath = parser.option('source')!;
       String outputPath = parser.option('output')!;
       await parseWriteTodo(sourcePath, outputPath);
     } else {
-      print('Error: Should provide \'-s\' and \'-o\'');
-      print('Example:');
-      print('  dartodo_parser -s path/file_input.dart -o output.md');
+      print('Error:');
+      print('  Should provide \'-s\' and \'-o\'\n');
+      print('  Example:');
+      print('    dartodo_parser -s path/file_input.dart -o output.md');
+      print('  Or');
+      print('    dartodo_parser -s path/file_input.dart -p');
+      return;
     }
 
   } on FormatException catch (e) {
@@ -80,7 +101,6 @@ Future<String> isFileOrDir(String path) async {
 Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
   String type = await isFileOrDir(sourcePath);
   if (type == 'file') {
-    // TODO(MED): Add sort() 
     File sourceFile = File(sourcePath);
 
     if (!await sourceFile.exists()) {
@@ -90,37 +110,14 @@ Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
 
     String fileContent = await sourceFile.readAsString();
     List<Todo> foundTodos = Todo.parseAll(fileContent);
+    final todos = sort(foundTodos);
 
     File outputFile = File(outputPath);
     String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
 
-    writeFile(outputFile, format, foundTodos);
+    writeFile(outputFile, format, todos);
   } else if (type == 'directory') {
-    final dir = Directory(sourcePath);
-    final List<FileSystemEntity> entities = await dir
-      .list(recursive: true, followLinks: false)
-      .toList();
-
-    final files = entities.whereType<File>().where((file) {
-      final parts = dart_path.split(file.path);
-      final isHidden = parts.any(
-        (part) => part.startsWith('.') && part != '.' && part != '..',
-      );
-      return !isHidden;
-    });
-
-    List<Todo> foundTodos = [];
-
-    // TODO(MED): Change `for...in` with `Future.wait`
-    for (final file in files) {
-      if (await isTextFile(file)) {
-        String fileContent = await file.readAsString();
-        foundTodos.addAll(Todo.parseAll(fileContent));
-      }
-    }
-
-    final todos = sort(foundTodos);
-
+    final todos = await parseDirectory(sourcePath);
     File outputFile = File(outputPath);
     String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
 
@@ -130,6 +127,33 @@ Future<void> parseWriteTodo(String sourcePath, String outputPath) async {
     print("Error: Source file or directory not found");
     return;
   }
+}
+Future<List<Todo>> parseDirectory(String sourcePath) async {
+  final dir = Directory(sourcePath);
+  final List<FileSystemEntity> entities = await dir
+    .list(recursive: true, followLinks: false)
+    .toList();
+
+  final files = entities.whereType<File>().where((file) {
+    final parts = dart_path.split(file.path);
+    final isHidden = parts.any(
+      (part) => part.startsWith('.') && part != '.' && part != '..',
+    );
+    return !isHidden;
+  });
+
+  List<Todo> foundTodos = [];
+
+  // TODO(MED): Change `for...in` to `Future.wait`
+  for (final file in files) {
+    if (await isTextFile(file)) {
+      String fileContent = await file.readAsString();
+      foundTodos.addAll(Todo.parseAll(fileContent));
+    }
+  }
+
+  final todos = sort(foundTodos);
+  return todos;
 }
 
 Future<bool> isTextFile(File file) async {
