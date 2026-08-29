@@ -15,36 +15,26 @@
   **Desc**     : -<br>
 
 - [ ] #4<br>
-  **Priority** : HIGH<br>
-  **Task**     : Change static filename<br>
-  **Desc**     : -<br>
-
-- [ ] #5<br>
   **Priority** : MED<br>
   **Task**     : todo with medium priority<br>
   **Desc**     : -<br>
 
-- [ ] #6<br>
+- [ ] #5<br>
   **Priority** : MED<br>
   **Task**     : Add `-ih` or `--include-hidden` flag<br>
   **Desc**     : Default exclude hidden file or dir<br>
 
+- [ ] #6<br>
+  **Priority** : MED<br>
+  **Task**     : Change `for...in` to `Future.wait`<br>
+  **Desc**     : -<br>
+
 - [ ] #7<br>
-  **Priority** : MED<br>
-  **Task**     : Add sort()<br>
-  **Desc**     : -<br>
-
-- [ ] #8<br>
-  **Priority** : MED<br>
-  **Task**     : Change `for...in` with `Future.wait`<br>
-  **Desc**     : -<br>
-
-- [ ] #9<br>
   **Priority** : LOW<br>
   **Task**     : todo with low priority<br>
   **Desc**     : -<br>
 
-- [ ] #10<br>
+- [ ] #8<br>
   **Priority** : LOW<br>
   **Task**     : todo low priority<br>
   **Desc**     : Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum interdum 
@@ -54,7 +44,7 @@ risus sed diam faucibus bibendum. Nulla sit amet lorem eget ex cursus vulputate
 vitae sit amet urna. Cras aliquam purus a neque posuere, nec varius ligula 
 faucibus.<br>
 
-- [ ] #11<br>
+- [ ] #9<br>
   **Priority** : -<br>
   **Task**     : todo with no priority<br>
   **Desc**     : -<br>
