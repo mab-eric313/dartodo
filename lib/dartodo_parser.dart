@@ -17,45 +17,54 @@ enum Priority {
 
 int todoNumber = 0;
 
-/*
-TODO(HIGH): Add file property
-(DESC):
-  This property will see what file location has been parsed
-*/
 class Todo {
   String task = '';
   String priority = ''; // LOW/MED/HIG/NONE
   String description = '';
+  String filePath = '';
+  int lineNumber = 0;
 
   Todo({
     required this.task,
     required this.priority,
     required this.description,
+    required this.filePath,
+    required this.lineNumber,
   });
 
-  static List<Todo> parseAll(String fileContent) {
+  static List<Todo> parseAll(String fileContent, String filePath) {
     List<Todo> todos = [];
 
     RegExp regex = RegExp(
-      r'(?:\/\/\s*TODO(?:\(([Ll][Oo][Ww]|[Mm][Ee][Dd]|[Hh][Ii][Gg][Hh])\))?:\s*([^\n\r]*)|\/\*\s*TODO(?:\(([Ll][Oo][Ww]|[Mm][Ee][Dd]|[Hh][Ii][Gg][Hh])\))?:\s*([^\n\r]*)(?:\s*\(DESC\):\s*([\s\S]*?))?\s*\*\/)',
+      r'(?:\/\/\s*(TODO)(?:\(([Ll][Oo][Ww]|[Mm][Ee][Dd]|[Hh][Ii][Gg][Hh])\))?:\s*([^\n\r]*)|\/\*\s*(TODO)(?:\(([Ll][Oo][Ww]|[Mm][Ee][Dd]|[Hh][Ii][Gg][Hh])\))?:\s*([^\n\r]*)(?:\s*\(DESC\):\s*([\s\S]*?))?\s*\*\/)',
       multiLine: true,
       dotAll: true,
     );
 
     for (final match in regex.allMatches(fileContent)) {
-      String? rawPriority = match.group(1) ?? match.group(3);
-      String? rawTask = match.group(2) ?? match.group(4);
-      String? rawDesc = match.group(5);
+      final isSingleLine = match.group(1) != null;
+      final isMultiLine = match.group(4) != null;
+      String? rawPriority = match.group(2) ?? match.group(5);
+      String? rawTask = match.group(3) ?? match.group(6);
+      String? rawDesc = match.group(7);
 
       String finalPriority = (rawPriority ?? '-').toUpperCase();
       String finalTask = (rawTask ?? 'No Task').trim();
       String finalDesc = (rawDesc ?? '').trim();
+      int lineNumber = 0;
+      if (isSingleLine) {
+        lineNumber = fileContent.substring(0, match.start).split('\n').length;
+      } else if (isMultiLine) {
+        lineNumber = fileContent.substring(0, match.start).split('\n').length + 1;
+      }
 
       todos.add(
         Todo(
           task: finalTask, 
           priority: finalPriority, 
           description: finalDesc,
+          filePath: filePath,
+          lineNumber: lineNumber,
         )
       );
     }
@@ -75,6 +84,7 @@ class Todo {
   Priority : ${priority.isEmpty ? "-" : priority}
   Task     : $task
   Desc     : ${description.isEmpty ? "-" : description}
+  File     : $filePath:$lineNumber
 
 ''';
     } else if (type == 'markdown') {
@@ -87,6 +97,7 @@ class Todo {
   **Priority** : ${priority.isEmpty ? "-" : priority}<br>
   **Task**     : $task<br>
   **Desc**     : ${description.isEmpty ? "-" : description}<br>
+  **File**     : $filePath:$lineNumber
 
 ''';
     }
@@ -101,6 +112,7 @@ class Todo {
   Priority : ${priority.isEmpty ? "-" : priority}
   Task     : $task
   Desc     : ${description.isEmpty ? "-" : description}
+  File     : $filePath:$lineNumber
 ''';
     return buffer;
   }

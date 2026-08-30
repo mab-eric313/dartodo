@@ -65,7 +65,7 @@ void main(List<String> arguments) async {
         File fileInput = File(sourcePath);
         if (await fileInput.exists()) {
           String fileContent = await fileInput.readAsString();
-          List<Todo> foundTodos = Todo.parseAll(fileContent);
+          List<Todo> foundTodos = Todo.parseAll(fileContent, fileInput.path);
           printTodos(foundTodos);
         } else {
           print('Error: File "$sourcePath" not found');
@@ -122,7 +122,7 @@ Future<void> parseWriteTodo(
     }
 
     String fileContent = await sourceFile.readAsString();
-    List<Todo> foundTodos = Todo.parseAll(fileContent);
+    List<Todo> foundTodos = Todo.parseAll(fileContent, sourceFile.path);
     todos = sort(foundTodos);
   } else if (type == 'directory') {
     todos = await parseDirectory(sourcePath, exceptPath: exceptPath);
@@ -135,6 +135,7 @@ Future<void> parseWriteTodo(
   String format = outputPath.endsWith('.md') ? 'markdown' : 'text';
   writeFile(outputFile, format, todos);
 }
+
 Future<List<Todo>> parseDirectory(
   String sourcePath, 
   {List<String>? exceptPath}
@@ -162,7 +163,7 @@ Future<List<Todo>> parseDirectory(
   for (final file in files) {
     if (await isTextFile(file)) {
       String fileContent = await file.readAsString();
-      foundTodos.addAll(Todo.parseAll(fileContent));
+      foundTodos.addAll(Todo.parseAll(fileContent, file.path));
     }
   }
 
