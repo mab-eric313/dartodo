@@ -25,5 +25,5 @@ faucibus.
 
 Run:
 ```sh
-dart run bin/dartodo_parser.dart -s . -o TODO.md
+dart run bin/dartodo.dart -s . -o TODO.md
 ```

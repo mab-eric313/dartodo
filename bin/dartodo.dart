@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:path/path.dart' as dart_path;
 
 import 'package:args/args.dart';
-import 'package:dartodo_parser/dartodo_parser.dart';
+import 'package:dartodo/dartodo.dart';
 
 void main(List<String> arguments) async {
   if (arguments.isEmpty) {
@@ -215,25 +215,25 @@ void printError() {
 Error:
   Should provide '-s' and '-o'\n'
   Example:'
-    dartodo_parser -s path/file_input.dart -o output.md'
+    dartodo -s path/file_input.dart -o output.md'
   Or'
-    dartodo_parser -s path/file_input.dart -p'
+    dartodo -s path/file_input.dart -p'
 ''');
 }
 
 void showUsage(ArgParser argParser) {
   print('''
-dartodo_parser - Parse TODO comments from code
+dartodo - Parse TODO comments from code
 
-Usage: dartodo_parser [options]
+Usage: dartodo [options]
 
 ${argParser.usage}
 
 Examples:
-  dartodo_parser -s . -o TODO.md
-  dartodo_parser -s lib -o TODO.md -e test -e build
-  dartodo_parser -s lib -o TODO.md --except=test,build
-  dartodo_parser -s . -p
-  dartodo_parser -s main.dart -o TODO.txt
+  dartodo -s . -o TODO.md
+  dartodo -s lib -o TODO.md -e test -e build
+  dartodo -s lib -o TODO.md --except=test,build
+  dartodo -s . -p
+  dartodo -s main.dart -o TODO.txt
 ''');
 }

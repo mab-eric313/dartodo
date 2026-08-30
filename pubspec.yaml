@@ -1,7 +1,7 @@
-name: dartodo_parser
+name: dartodo
 description: A sample command-line application.
 version: 1.0.0
-repository: https://github.com/mab-eric313/dartodo_parser
+repository: https://github.com/mab-eric313/dartodo
 
 environment:
   sdk: ^3.12.2
