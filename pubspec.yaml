@@ -1,6 +1,6 @@
 name: dartodo
-description: A sample command-line application.
-version: 1.0.0
+description: Parse TODO comments from code
+version: 0.1.0
 repository: https://github.com/mab-eric313/dartodo
 
 environment:

@@ -1,3 +1,14 @@
 # https://dart.dev/tools/private-files
-# Created by `dart pub`
 .dart_tool/
+.packages
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
