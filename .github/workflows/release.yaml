@@ -1,0 +1,43 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            output_name: dartodo-linux-x64
+          - os: windows-latest
+            output_name: dartodo-windows-x64.exe
+          - os: macos-latest
+            output_name: dartodo-macos-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile executable
+        run: |
+          mkdir -p build
+          dart compile exe --target-arch x64 -o build/${{ matrix.output_name }} bin/dartodo.dart
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/${{ matrix.output_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
