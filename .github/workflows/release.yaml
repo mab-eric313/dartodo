@@ -36,7 +36,7 @@ jobs:
       - name: Compile executable
         run: |
           mkdir -p build
-          dart compile exe --target-arch x64 -o build/${{ matrix.output_name }} bin/dartodo.dart
+          dart compile exe -o build/${{ matrix.output_name }} bin/dartodo.dart
 
       - name: Release
         uses: softprops/action-gh-release@v2
